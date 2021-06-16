@@ -1,38 +1,44 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
-      "react-native-maps-draw": ["./src/index"]
+      "react-native-maps-draw": [
+        "./src/index"
+      ]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
+    "esModuleInterop": true,
+    "importsNotUsedAsValues": "error",
     "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
+    "lib": [
+      "esnext"
+    ],
+      // Tells TypeScript to read JS files, as
+      // normally they are ignored as source files
+      "allowJs": true,
+      // Generate d.ts files
+      "declaration": true,
+      // This compiler run should
+      // only output d.ts files
+      "emitDeclarationOnly": true,
+      // Types should go into this directory.
+      // Removing this would place the .d.ts files
+      // next to the .js files
+      "outDir": "dist",
     "module": "esnext",
-    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "jsx": "react",
-    "lib": ["es6"],
-    "moduleResolution": "node",
-    "noEmit": true,
+    "noStrictGenericChecks": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
     "strict": false,
+    "noImplicitAny": false,
     "target": "esnext"
-  },
-
-  "filesGlob": [
-         "typings/**/*.d.ts",
-       "src/**/*.ts",
-        "src/**/*.tsx"
-  ],
-  "include": ["src"],
-  "exclude": [
-    "node_modules",
-    "babel.config.js",
-    "metro.config.js",
-    "jest.config.js"
-  ]
+  }
 }

@@ -1,0 +1,1 @@
+export const DEFAULT_INDEX_INITIAL_LAT_LNG = 0;
