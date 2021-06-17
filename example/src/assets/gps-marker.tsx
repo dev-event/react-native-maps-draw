@@ -21,7 +21,7 @@ C294.521,137.087,269.469,112.035,238.556,112z M238.556,208c-22.091,0-40-17.909-4
 C278.53,190.08,260.636,207.974,238.556,208z'/>
 </svg>`;
 
-  return <SvgXml xml={svgMarkup} width={100} height={100} />;
+  return <SvgXml xml={svgMarkup} width={24} height={24} />;
 };
 
 export default GpsLocation;

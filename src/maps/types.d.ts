@@ -7,9 +7,6 @@ import {
   StyleProp,
   ViewStyle,
 } from 'react-native';
-import type { ICanvasProps } from '../canvas';
-import type { IPolygonProps } from '../polygon';
-
 export interface ILocationProps {
   latitude: number;
   longitude: number;
@@ -27,17 +24,24 @@ export interface IDrawResult {
   centerLatLng: false | ILocationProps;
 }
 
-export interface IMapProps extends MapViewProps, ICanvasProps, IPolygonProps {
+export interface IMapProps extends MapViewProps {
   ref?: Ref<MapView>;
+  points: TouchPoint[];
   children?: ReactNode;
+  colorLine?: string;
+  widthLine?: number;
   onEndDraw?: (item: IDrawResult) => void;
   isDrawMode: boolean;
-  renderPath?: (points: TouchPoint[]) => FC | null;
+  renderPath?: (path: string) => FC | null;
   onStartDraw: () => void;
-  isGestureEvent?: boolean;
+  fillOverlay?: string;
+  onChangePoints: (points: TouchPoint[]) => void;
+  fillColorCanvas?: string;
   backgroundCanvas?: string;
+  widthOverlayLine?: number;
   styleViewGesture?: StyleProp<ViewStyle>;
   renderContentGesture?: (points: TouchPoint[]) => FC | null;
-  renderOverlayPolygon?: (points: TouchPoint[]) => FC | null;
+  renderOverlayPolygon?: (points: string) => FC | null;
+  colorWidthOverlayLine?: string;
   backgroundOverlayPolygon?: string;
 }

@@ -3,7 +3,7 @@ import { Svg, Defs, Rect, Mask, Polygon } from 'react-native-svg';
 import React, { FC } from 'react';
 import type { IPolygonProps } from './types';
 const MapPolygon: FC<IPolygonProps> = ({
-  points,
+  path,
   fillOverlay,
   widthOverlayLine,
   colorWidthOverlayLine,
@@ -27,7 +27,7 @@ const MapPolygon: FC<IPolygonProps> = ({
         <Mask id="mask" x="0" y="0" height="100%" width="100%">
           <Rect height="100%" width="100%" fill="#fff" />
           <Polygon
-            points={points}
+            points={path}
             fill={fillOverlay}
             stroke={colorWidthOverlayLine}
             strokeWidth={widthOverlayLine}

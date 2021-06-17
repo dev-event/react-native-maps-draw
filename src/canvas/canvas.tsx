@@ -4,7 +4,7 @@ import type { ICanvasProps } from './types';
 import React, { FC } from 'react';
 
 const Canvas: FC<ICanvasProps> = ({
-  points,
+  path,
   colorLine,
   fillColorCanvas,
   widthLine,
@@ -15,7 +15,7 @@ const Canvas: FC<ICanvasProps> = ({
       <Polyline
         fill={fillColorCanvas}
         stroke={colorLine}
-        points={points}
+        points={path}
         strokeWidth={widthLine}
       />
     </Svg>

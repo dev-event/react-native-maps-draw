@@ -4,14 +4,12 @@ import React, {
   useCallback,
   forwardRef,
   useMemo,
-  useState,
 } from 'react';
 import MapView from 'react-native-maps';
 import { StyleSheet, SafeAreaView } from 'react-native';
 import { Canvas } from '../canvas';
 import { GestureHandler } from '../gesture';
-import { MapPolygon } from '../polygon';
-import type { TouchPoint } from '../types';
+import { OverlayPolygon } from '../polygon';
 import type { IMapProps } from './types';
 import { DEFAULT_INDEX_INITIAL_LAT_LNG } from './contstant';
 import * as _GEO from 'geolib';
@@ -19,32 +17,30 @@ import * as _GEO from 'geolib';
 export default forwardRef<MapView, IMapProps>(
   (
     {
-      colorLine = '#181829',
+      points,
+      colorLine = 'tomato',
       children,
-      widthLine = 2,
+      widthLine = 3,
       onEndDraw,
       isDrawMode = false,
       renderPath,
       onStartDraw,
+      onChangePoints,
       widthOverlayLine = 3,
       fillOverlay = '#181829',
       fillColorCanvas = 'none',
       styleViewGesture,
-      backgroundCanvas = 'rgba(0,0,0,0.30)', //когда рисуем - фон
+      backgroundCanvas = 'rgba(0,0,0,0.30)',
       renderContentGesture,
       renderOverlayPolygon,
-      colorWidthOverlayLine = '#FFFFFF',
+      colorWidthOverlayLine = 'yellow',
       backgroundOverlayPolygon = 'rgba(0,0,0,0.20)', //когда закончили рисовать - фон
       ...rest
     },
     ref
   ) => {
     const internalRef = useRef<MapView>(null);
-    const initialPath = useRef<TouchPoint[]>([]);
-
     const mapRef = (ref as RefObject<MapView>) || internalRef;
-    const [path, setPath] = useState<TouchPoint[]>(initialPath.current);
-    const handleOnPath = useCallback((points) => setPath(points), []);
 
     const containerStyle = useMemo(
       () => [
@@ -53,6 +49,11 @@ export default forwardRef<MapView, IMapProps>(
         styleViewGesture,
       ],
       [backgroundCanvas, styleViewGesture]
+    );
+
+    const path = useMemo(
+      () => points.map((item) => `${item.x},${item.y}`).join(' '),
+      [points]
     );
 
     const calculatedCenterPolygon = (coordinates) =>
@@ -71,7 +72,6 @@ export default forwardRef<MapView, IMapProps>(
                 initialLatLng,
                 lastLatLng,
               });
-              // setPath(initialPath.current);
             }
           });
         }
@@ -85,73 +85,23 @@ export default forwardRef<MapView, IMapProps>(
     );
 
     const handleEndDraw = useCallback(
-      async (points) => {
-        await Promise.all(points.map(convertByPoint)).then(
+      async (data) => {
+        await Promise.all(data.map(convertByPoint)).then(
           convertPointToCoordinates
         );
       },
       [convertByPoint, convertPointToCoordinates]
     );
 
-    const points = useMemo(
-      () => path.map((item) => `${item.x},${item.y}`).join(' '),
-      [path]
-    );
-
-    const hasCanvas = useMemo(() => {
-      return (
-        isDrawMode && (
-          <SafeAreaView style={containerStyle}>
-            {renderContentGesture && renderContentGesture(path)}
-            {renderPath ? (
-              renderPath(path)
-            ) : (
-              <Canvas
-                points={points}
-                widthLine={widthLine}
-                colorLine={colorLine}
-                fillColorCanvas={fillColorCanvas}
-              />
-            )}
-
-            <GestureHandler
-              onEndTouchEvents={handleEndDraw}
-              onStartTouchEvents={onStartDraw}
-              onChangeTouchEvents={handleOnPath}
-            />
-          </SafeAreaView>
-        )
-      );
-    }, [
-      isDrawMode,
-      containerStyle,
-      renderContentGesture,
-      path,
-      renderPath,
-      points,
-      colorLine,
-      fillColorCanvas,
-      widthLine,
-      handleEndDraw,
-      onStartDraw,
-      handleOnPath,
-    ]);
-
-    const hasMap = (
-      <MapView ref={mapRef} {...rest}>
-        {children}
-      </MapView>
-    );
-
-    const renderMapPolygonOverlay = useCallback(() => {
+    const renderMapPolygonOverlay = useMemo(() => {
       if (renderOverlayPolygon === null) {
         return null;
       }
 
-      return renderOverlayPolygon === undefined && !isDrawMode && !!points ? (
-        <MapPolygon
+      return renderOverlayPolygon === undefined && !!path && points ? (
+        <OverlayPolygon
           {...{
-            points,
+            path,
             fillOverlay,
             widthOverlayLine,
             colorWidthOverlayLine,
@@ -159,21 +109,66 @@ export default forwardRef<MapView, IMapProps>(
           }}
         />
       ) : (
-        renderOverlayPolygon
+        renderOverlayPolygon(path)
       );
     }, [
-      backgroundOverlayPolygon,
-      colorWidthOverlayLine,
-      fillOverlay,
-      isDrawMode,
+      path,
       points,
-      renderOverlayPolygon,
+      fillOverlay,
       widthOverlayLine,
+      renderOverlayPolygon,
+      colorWidthOverlayLine,
+      backgroundOverlayPolygon,
     ]);
+
+    const hasCanvas = useMemo(() => {
+      return (
+        <SafeAreaView style={containerStyle}>
+          {isDrawMode ?
+            <>
+              {renderContentGesture && renderContentGesture(points)}
+              {renderPath ? (
+                renderPath(path)
+              ) : (
+                <Canvas
+                  path={path}
+                  widthLine={widthLine}
+                  colorLine={colorLine}
+                  fillColorCanvas={fillColorCanvas}
+                />
+              )}
+
+              <GestureHandler
+                onEndTouchEvents={handleEndDraw}
+                onStartTouchEvents={onStartDraw}
+                onChangeTouchEvents={onChangePoints}
+              />
+            </>
+           : renderMapPolygonOverlay}
+        </SafeAreaView>
+      )}, [
+      path,
+      points,
+      widthLine,
+      colorLine,
+      renderPath,
+      isDrawMode,
+      onStartDraw,
+      containerStyle,
+      onChangePoints,
+      fillColorCanvas,
+      renderContentGesture,
+      renderMapPolygonOverlay,
+    ]);
+
+    const hasMap = (
+      <MapView scrollEnabled={!isDrawMode} ref={mapRef} {...rest}>
+        {children}
+      </MapView>
+    );
 
     return (
       <>
-        {renderMapPolygonOverlay()}
         {hasCanvas}
         {hasMap}
       </>
