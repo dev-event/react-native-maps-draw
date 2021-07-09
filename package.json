@@ -1,7 +1,7 @@
 {
   "name": "react-native-maps-draw",
   "version": "0.1.0",
-  "description": "this maps draw package",
+  "description": "this draw",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
@@ -65,7 +65,7 @@
     "react-native": "0.63.4",
     "react-native-builder-bob": "^0.18.0",
     "release-it": "^14.2.2",
-    "typescript": "^4.1.3"
+    "typescript": "4.3.2"
   },
   "peerDependencies": {
     "react": "*",
@@ -129,13 +129,6 @@
     "node_modules/",
     "lib/"
   ],
-  "prettier": {
-    "quoteProps": "consistent",
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "useTabs": false
-  },
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
@@ -149,5 +142,12 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "geolib": "^3.3.1",
+    "invariant": "^2.2.4",
+    "react-native-maps": "^0.28.0",
+    "react-native-reanimated": "2.1.0",
+    "react-native-svg": "^12.1.1"
   }
 }
