@@ -1,2 +1,7 @@
 export { default } from './maps';
-export type { IGestureCoordinates, ILocationProps, IMapProps } from './types';
+export type {
+  IGestureCoordinates,
+  ILocationProps,
+  IMapProps,
+  IDrawResult,
+} from './types';

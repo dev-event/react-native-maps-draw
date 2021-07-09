@@ -15,18 +15,10 @@
     "lib": [
       "esnext"
     ],
-      // Tells TypeScript to read JS files, as
-      // normally they are ignored as source files
-      "allowJs": true,
-      // Generate d.ts files
-      "declaration": true,
-      // This compiler run should
-      // only output d.ts files
-      "emitDeclarationOnly": true,
-      // Types should go into this directory.
-      // Removing this would place the .d.ts files
-      // next to the .js files
-      "outDir": "dist",
+    "allowJs": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
     "module": "esnext",
     "moduleResolution": "node",
     "noImplicitReturns": true,
@@ -40,5 +32,5 @@
     "strict": false,
     "noImplicitAny": false,
     "target": "esnext"
-  }
+  },
 }

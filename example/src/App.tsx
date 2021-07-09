@@ -1,49 +1,38 @@
 import React, { useState, useCallback, useRef } from 'react';
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Text,
-  Image,
-  Platform,
-} from 'react-native';
-import MapView, { ILocationProps } from '../../src';
+import { StyleSheet, View, TouchableOpacity, Platform, Text } from 'react-native';
+import MapView, { ILocationProps, IDrawResult, TouchPoint, Marker } from '../../src';
 import { MarkerLocation } from './assets';
-import { Marker, Polygon } from 'react-native-maps';
-import { TouchPoint } from '../../src/types';
+import AnimatedPolygon from './components/polygon';
 
 export default function App() {
   const mapRef = useRef<MapView>(null);
 
   const initialPolygon = useRef({
     polygons: [],
+    distance: 0,
     lastLatLng: undefined,
     initialLatLng: undefined,
     centerLatLng: undefined,
   });
 
+  const [modePolygon, setPolygonCreated] = useState<boolean>(false);
+
   const [isActiveDraw, setDrawMode] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [points, setPoints] = useState<TouchPoint[]>([]);
 
-  const [polygon, setPolygon] = useState<{
-    polygons: ILocationProps[];
-    lastLatLng: ILocationProps;
-    initialLatLng: ILocationProps;
-    centerLatLng: ILocationProps;
-  }>(initialPolygon.current);
+  const [polygon, setPolygon] = useState<IDrawResult>(initialPolygon.current);
 
-  const handleMapReady = useCallback(
-    () => mapRef.current && setIsReady(true),
-    []
-  );
+  const handleMapReady = useCallback(() => mapRef.current && setIsReady(true), []);
 
   const handleRemovePolygon = useCallback(() => {
     setPolygon(initialPolygon.current);
+    setPolygonCreated(false);
   }, []);
 
   const handleClear = useCallback(() => {
     setPolygon(initialPolygon.current);
+    setPolygonCreated(false);
     setPoints([]);
   }, []);
 
@@ -55,8 +44,11 @@ export default function App() {
     setDrawMode((prevMode) => !prevMode);
   }, [handleClear, isActiveDraw]);
 
-  const handleCanvasDraw = useCallback((locations) => {
-    zoomCenterPolygon(locations.centerLatLng).then(() => setPolygon(locations));
+  const handleCanvasEndDraw = useCallback((locations) => {
+    zoomCenterPolygon(locations.centerLatLng).then(() => {
+      setPolygon(locations);
+      setPolygonCreated(true);
+    });
     setDrawMode((prevMode) => !prevMode);
   }, []);
 
@@ -66,11 +58,11 @@ export default function App() {
     if (Platform.OS === 'ios') {
       mapRef.current.animateCamera({
         center: center,
-        altitude: camera.altitude / 1.3,
+        // altitude: camera.altitude / 2,
       });
     }
     if (Platform.OS === 'android') {
-      mapRef.current.animateCamera({ center, zoom: camera.zoom + 1 });
+      // mapRef.current.animateCamera({ center, zoom: camera.zoom + 1 });
     }
   };
 
@@ -79,7 +71,7 @@ export default function App() {
 
     const camera = await mapRef.current.getCamera();
     if (Platform.OS === 'ios') {
-      mapRef.current.animateCamera({ altitude: camera.altitude * 2 });
+      mapRef.current.animateCamera({ altitude: camera.altitude * 1 });
     }
 
     if (Platform.OS === 'android') {
@@ -94,82 +86,57 @@ export default function App() {
   );
 
   const handlePolygon = useCallback(
-    (item, index) => (
-      <Polygon
-        key={index}
-        coordinates={polygon.polygons}
-        fillColor="rgba(0, 0, 0, 0.00)"
-        strokeColor="rgba(0, 0, 0, 0.00)"
-        strokeWidth={0}
-      />
-    ),
+    (item, index) => <AnimatedPolygon key={index} coordinates={polygon.polygons} />,
     [polygon.polygons]
   );
 
-  const handleBlockText = useCallback(() => {
-    return (
-      <>
-        <View style={styles.header}>
-          <Text style={styles.title}>Draw mode preview</Text>
-        </View>
-
-        <View style={styles.content}>
-          <Text style={styles.title}>What is Lorem Ipsum?</Text>
-          <Text style={styles.description} adjustsFontSizeToFit={true}>
-            Lorem Ipsum has been the industry's standard dummy text ever since
-            the 1500s, when an unknown printer took a galley of type and
-            scrambled it to make a type specimen book.
-          </Text>
-          <View style={[styles.row, { justifyContent: 'space-between' }]}>
-            <View style={styles.row}>
-              <Image
-                source={require('../src/assets/pencil.png')}
-                resizeMode={'contain'}
-                style={{ tintColor: 'white' }}
-              />
-              <Text style={styles.name}>28 miles</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Image
-                source={require('../src/assets/pencil.png')}
-                resizeMode={'contain'}
-                style={{ tintColor: 'white' }}
-              />
-              <Text style={styles.name}>4.5 h</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Image
-                source={require('../src/assets/pencil.png')}
-                resizeMode={'contain'}
-                style={{ tintColor: 'white' }}
-              />
-              <Text style={styles.name}>hard</Text>
-            </View>
-          </View>
-        </View>
-      </>
-    );
+  const onChangePoints = useCallback((value) => {
+    setPoints(value);
   }, []);
 
+  //
+  // const hasOverlay = useMemo(() => {
+  //   if (renderOverlayPolygon === null) {
+  //     return null;
+  //   }
+  //
+  //   return renderOverlayPolygon !== undefined
+  //     ? renderOverlayPolygon(path)
+  //     : !!path && (
+  //         <OverlayPolygon
+  //           {...{
+  //             path,
+  //             fillOverlay,
+  //             widthOverlayLine,
+  //             colorWidthOverlayLine,
+  //             backgroundOverlayPolygon,
+  //           }}
+  //         />
+  //       );
+  // }, [
+  //   path,
+  //   fillOverlay,
+  //   widthOverlayLine,
+  //   renderOverlayPolygon,
+  //   colorWidthOverlayLine,
+  //   backgroundOverlayPolygon,
+  // ]);
   return (
     <View style={styles.container}>
       <MapView
         ref={mapRef}
         style={{ flex: 1 }}
         points={points}
-        colorLine={'tomato'}
-        onEndDraw={handleCanvasDraw}
+        widthLine={3}
+        onEndDraw={handleCanvasEndDraw}
         isDrawMode={isActiveDraw}
         onMapReady={handleMapReady}
         onStartDraw={handleClear}
-        onChangePoints={setPoints}
-        widthLine={3}
-        backgroundCanvas={'rgba(25, 0, 64, 0.62)'}
-        renderContentGesture={handleBlockText}
+        createdPolygon={modePolygon}
+        onChangePoints={onChangePoints}
+        backgroundCanvas={'rgba(0, 0, 0, 0.0)'}
       >
-        {isReady && polygon.polygons && polygon.polygons.length > 0 && (
+        {isReady && modePolygon && polygon.polygons && polygon.polygons.length > 0 && (
           <>
             {hasMarkerClose}
             {polygon.polygons.map(handlePolygon)}
@@ -179,17 +146,9 @@ export default function App() {
 
       <TouchableOpacity style={styles.button} onPress={handleIsDraw}>
         {isActiveDraw ? (
-          <Image
-            source={require('../src/assets/close.png')}
-            resizeMode={'contain'}
-            style={{ tintColor: 'white' }}
-          />
+          <Text style={styles.title}>ON</Text>
         ) : (
-          <Image
-            source={require('../src/assets/pencil.png')}
-            resizeMode={'contain'}
-            style={{ tintColor: 'white' }}
-          />
+          <Text style={styles.title}>OFF</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -204,39 +163,13 @@ const styles = StyleSheet.create({
     top: '10%',
     right: '10%',
     position: 'absolute',
+    backgroundColor: 'tomato',
     padding: 16,
     zIndex: 4,
     borderRadius: 18,
   },
-  content: {
-    paddingHorizontal: 18,
-    position: 'absolute',
-    bottom: 70,
-  },
-  header: {
-    paddingHorizontal: 18,
-    position: 'absolute',
-    top: 70,
-    width: '100%',
-    alignItems: 'center',
-  },
   title: {
     color: '#FFFFFF',
-    fontSize: 20,
-    marginBottom: 14,
-  },
-  description: {
-    color: '#DDDDDD',
-    fontSize: 14,
-    marginBottom: 28,
-  },
-  name: {
-    color: '#DDDDDD',
-    fontSize: 14,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    fontSize: 12,
   },
 });

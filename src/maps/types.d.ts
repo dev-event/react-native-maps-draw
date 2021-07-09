@@ -18,6 +18,7 @@ export interface IGestureCoordinates {
   points: TouchPoint[];
 }
 export interface IDrawResult {
+  distance: number;
   polygons: ILocationProps[];
   lastLatLng: ILocationProps;
   initialLatLng: ILocationProps;
@@ -34,14 +35,10 @@ export interface IMapProps extends MapViewProps {
   isDrawMode: boolean;
   renderPath?: (path: string) => FC | null;
   onStartDraw: () => void;
-  fillOverlay?: string;
+  unitDistance?: 'm' | 'km' | 'cm' | 'mm' | 'mi' | 'sm' | 'ft' | 'in' | 'yd';
+  createdPolygon: boolean;
   onChangePoints: (points: TouchPoint[]) => void;
   fillColorCanvas?: string;
   backgroundCanvas?: string;
-  widthOverlayLine?: number;
   styleViewGesture?: StyleProp<ViewStyle>;
-  renderContentGesture?: (points: TouchPoint[]) => FC | null;
-  renderOverlayPolygon?: (points: string) => FC | null;
-  colorWidthOverlayLine?: string;
-  backgroundOverlayPolygon?: string;
 }

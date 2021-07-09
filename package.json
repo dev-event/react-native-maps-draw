@@ -129,13 +129,6 @@
     "node_modules/",
     "lib/"
   ],
-  "prettier": {
-    "quoteProps": "consistent",
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "useTabs": false
-  },
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
@@ -152,6 +145,7 @@
   },
   "dependencies": {
     "geolib": "^3.3.1",
+    "invariant": "^2.2.4",
     "react-native-maps": "^0.28.0",
     "react-native-reanimated": "2.1.0",
     "react-native-svg": "^12.1.1"
