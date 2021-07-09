@@ -6,14 +6,14 @@
 <br>
 
 <h1 align="center">React Native Maps Draw (Polygon)</h1>
-<p align="center">Performance oriented React Native Accordion 60 FPS.  A simple component of a common use case of collapsible - a visible title with a collapsible view beneath it.</p>
+<p align="center">Interactive drawing of polygons on the map. Beta version</p>
 <h6 align="center">Made with ❤️ by developer for developers</h6>
 
 <br>
 <p align="center">
 <img src="http://img.shields.io/travis/badges/badgerbadgerbadger.svg?style=flat-square" alt="build"/>
-<img src="https://img.shields.io/github/issues/dev-event/react-native-accordion" alt="build"/>
-<img src="https://img.shields.io/bitbucket/pr-raw/dev-event/react-native-accordion" alt="build"/>
+<img src="https://img.shields.io/github/issues/dev-event/react-native-maps-draw" alt="build"/>
+<img src="https://img.shields.io/bitbucket/pr-raw/dev-event/react-native-maps-draw" alt="build"/>
 <img src="http://img.shields.io/:license-mit-blue.svg?style=flat-square" alt="build"/>
 </p>
 
@@ -51,9 +51,140 @@ Big love and gratitude to all people who are working on React Native, Expo and R
 
 ## Usage
 
-For more complete example open [App.tsx](https://github.com/dev-event/react-native-accordion)
+For more complete example open [App.tsx](https://github.com/dev-event/react-native-maps-draw/blob/main/example/src/App.tsx)
 
 ```tsx
+import React, { useState, useCallback, useRef } from 'react';
+import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import MapView, { 
+  ILocationProps,
+  IDrawResult, 
+  TouchPoint,
+  Marker
+} from 'react-native-maps-draw';
+
+
+const App: React.FC = () => {
+  const mapRef = useRef<MapView>(null);
+
+  const initialPolygon = useRef({
+    polygons: [],
+    distance: 0,
+    lastLatLng: undefined,
+    initialLatLng: undefined,
+    centerLatLng: undefined,
+  });
+
+  const [modePolygon, setPolygonCreated] = useState<boolean>(false);
+
+  const [isActiveDraw, setDrawMode] = useState<boolean>(false);
+  const [isReady, setIsReady] = useState<boolean>(false);
+  const [points, setPoints] = useState<TouchPoint[]>([]);
+
+  const [polygon, setPolygon] = useState<IDrawResult>(initialPolygon.current);
+
+  const handleMapReady = useCallback(() => mapRef.current && setIsReady(true), []);
+
+  const handleRemovePolygon = useCallback(() => {
+    setPolygon(initialPolygon.current);
+    setPolygonCreated(false);
+  }, []);
+
+  const handleClear = useCallback(() => {
+    setPolygon(initialPolygon.current);
+    setPolygonCreated(false);
+    setPoints([]);
+  }, []);
+
+  const handleIsDraw = useCallback(() => {
+    if (!mapRef.current) return;
+    setDrawMode((prevMode) => !prevMode);
+  }, [handleClear, isActiveDraw]);
+
+  const handleCanvasEndDraw = useCallback((locations) => {
+    zoomCenterPolygon(locations.centerLatLng).then(() => {
+      setPolygon(locations);
+      setPolygonCreated(true);
+    });
+    setDrawMode((prevMode) => !prevMode);
+  }, []);
+
+  const zoomCenterPolygon = async (center: ILocationProps) => {
+    if (!mapRef.current) return;
+    const camera = await mapRef.current.getCamera();
+    if (Platform.OS === 'ios') {
+      mapRef.current.animateCamera({
+        center: center,
+      });
+    }
+    if (Platform.OS === 'android') {}
+  };
+
+ 
+  const hasMarkerClose = polygon.centerLatLng && (
+    <Marker onPress={handleRemovePolygon} coordinate={polygon.centerLatLng}>
+      <MarkerLocation />
+    </Marker>
+  );
+
+  const handlePolygon = useCallback(
+    (item, index) => <AnimatedPolygon key={index} coordinates={polygon.polygons} />,
+    [polygon.polygons]
+  );
+  
+  
+  return (
+    <View style={styles.container}>
+      <MapView
+        ref={mapRef}
+        style={{ flex: 1 }}
+        points={points}
+        widthLine={3}
+        onEndDraw={handleCanvasEndDraw}
+        isDrawMode={isActiveDraw}
+        onMapReady={handleMapReady}
+        onStartDraw={handleClear}
+        createdPolygon={modePolygon}
+        onChangePoints={setPoints}
+        backgroundCanvas={'rgba(0, 0, 0, 0.0)'}
+      >
+        {isReady && modePolygon && polygon.polygons && polygon.polygons.length > 0 && (
+          <>
+            {hasMarkerClose}
+            {polygon.polygons.map(handlePolygon)}
+          </>
+        )}
+      </MapView>
+
+      <TouchableOpacity style={styles.button} onPress={handleIsDraw}>
+        {isActiveDraw ? (
+          <Text style={styles.title}>ON</Text>
+        ) : (
+          <Text style={styles.title}>OFF</Text>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  button: {
+    top: '10%',
+    right: '10%',
+    position: 'absolute',
+    backgroundColor: 'tomato',
+    padding: 16,
+    zIndex: 4,
+    borderRadius: 18,
+  },
+  title: {
+    color: '#FFFFFF',
+    fontSize: 12,
+  },
+});
 
 ```
 
@@ -65,7 +196,7 @@ For more complete example open [App.tsx](https://github.com/dev-event/react-nati
 | name                 | description                                                                                         | required | type                                                                                                        | default          |
 | -------------------- | --------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------| -----------------|
 | `points`             | An array of x, y coordinates for the drawing of the polygon.                                        | YES      | [`TouchPoint[]`](https://github.com/dev-event/react-native-maps-draw/blob/features/draw/src/types/index.ts) | []               |
-| `unitDistance`       | Distance unit                                                                                       | NO       | [`TouchPoint[]`](https://github.com/dev-event/react-native-maps-draw/blob/features/draw/src/maps/types.d.ts)| 'm'              |
+| `unitDistance`       | Distance unit                                                                                       | NO       | [`Units`](https://github.com/dev-event/react-native-maps-draw/blob/features/draw/src/maps/types.d.ts)| 'm'              |
 | `colorLine`          | Drawing line color                                                                                  | NO       | string                                                                                                      | '#791679'        |
 | `widthLine`          | Drawing line width                                                                                  | NO       | number                                                                                                      | 3                |
 | `onEndDraw`          | Callback is called after drawing is complete                                                        | NO       | (item: IDrawResult) => void                                                                                 |                  |

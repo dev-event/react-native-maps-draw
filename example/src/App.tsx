@@ -4,7 +4,7 @@ import MapView, { ILocationProps, IDrawResult, TouchPoint, Marker } from '../../
 import { MarkerLocation } from './assets';
 import AnimatedPolygon from './components/polygon';
 
-export default function App() {
+const App = () => {
   const mapRef = useRef<MapView>(null);
 
   const initialPolygon = useRef({
@@ -153,7 +153,9 @@ export default function App() {
       </TouchableOpacity>
     </View>
   );
-}
+};
+
+export default App;
 
 const styles = StyleSheet.create({
   container: {
