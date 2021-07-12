@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "react-native-maps-draw": [
+      "@dev-event/react-native-maps-draw": [
         "./src/index"
       ]
     },

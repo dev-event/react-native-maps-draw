@@ -37,9 +37,9 @@
 ## Installation
 
 ```bash
-yarn add react-native-maps-draw
+yarn add @dev-event/react-native-maps-draw
 # or
-npm install react-native-maps-draw
+npm install @dev-event/react-native-maps-draw
 ```
 > Also, you need to install [react-native-gesture-handler](https://github.com/software-mansion/react-native-gesture-handler) & [react-native-svg](https://github.com/react-native-community/react-native-svg), and follow theirs installation instructions.
 

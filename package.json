@@ -1,7 +1,7 @@
 {
-  "name": "react-native-maps-draw",
-  "version": "0.1.0",
-  "description": "this draw",
+  "name": "@dev-event/react-native-maps-draw",
+  "version": "0.1.4",
+  "description": "Interactive drawing of polygons on the map.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
@@ -34,7 +34,12 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "react-native-maps-draw",
+    "maps",
+    "polygon",
+    "coordinates",
+    "expo"
   ],
   "repository": "https://github.com/dev-event/react-native-maps-draw",
   "author": "Aliaksei Petrusevich <effectwaater@gmail.com> (https://github.com/dev-event)",
@@ -111,19 +116,7 @@
     "extends": [
       "@react-native-community",
       "prettier"
-    ],
-    "rules": {
-      "prettier/prettier": [
-        "error",
-        {
-          "quoteProps": "consistent",
-          "singleQuote": true,
-          "tabWidth": 2,
-          "trailingComma": "es5",
-          "useTabs": false
-        }
-      ]
-    }
+    ]
   },
   "eslintIgnore": [
     "node_modules/",
