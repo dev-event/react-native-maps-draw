@@ -1,5 +1,5 @@
 import React, { FC, useRef } from 'react';
-import { PanResponder, StyleSheet, View } from 'react-native';
+import { PanResponder, View } from 'react-native';
 import type { TouchPoint } from '../types';
 import type { IGestureProps } from './types';
 
@@ -35,9 +35,17 @@ const GestureHandler: FC<IGestureProps> = ({
         },
     });
 
+    // @ts-ignore
     return (
         <View
-            style={{ ...StyleSheet.absoluteFill, ...{ backgroundColor: 'transparent' } }}
+            style={{
+                backgroundColor: 'transparent',
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+            }}
             {...panResponder.panHandlers}
         />
     );
