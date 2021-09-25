@@ -1,6 +1,6 @@
 {
   "name": "@dev-event/react-native-maps-draw",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Interactive drawing of polygons on the map.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
