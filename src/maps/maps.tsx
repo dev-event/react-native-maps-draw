@@ -1,6 +1,13 @@
-import React, { useRef, RefObject, useCallback, forwardRef, useMemo } from 'react';
+import React, {
+    useRef,
+    RefObject,
+    useCallback,
+    forwardRef,
+    useMemo,
+    useState,
+} from 'react';
 import MapView from 'react-native-maps';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Canvas } from '../canvas';
 import { GestureHandler } from '../gesture';
 import type { IMapProps } from './types';
@@ -39,6 +46,8 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
     } = props;
     const internalRef = useRef<MapView>(null);
     const mapRef = (ref as RefObject<MapView>) || internalRef;
+    const { width, height } = useWindowDimensions();
+    const [containerSize, setContainerSize] = useState({ width, height });
 
     const containerStyle = useMemo(
         () => [
@@ -94,9 +103,16 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
         [convertByPoint, convertPointToCoordinates],
     );
 
+    const handleSetContainerSize = useCallback((event) => {
+        setContainerSize({
+            width: event.nativeEvent.layout.width,
+            height: event.nativeEvent.layout.height,
+        });
+    }, []);
+
     const hasCanvas = useMemo(() => {
         return (
-            <View style={containerStyle}>
+            <View style={containerStyle} onLayout={handleSetContainerSize}>
                 <>
                     {renderPath ? (
                         renderPath(path)
@@ -105,6 +121,7 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
                             path={path}
                             widthLine={widthLine}
                             colorLine={colorLine}
+                            containerSize={containerSize}
                             fillColorCanvas={fillColorCanvas}
                         />
                     )}
@@ -118,15 +135,17 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
             </View>
         );
     }, [
+        containerStyle,
+        handleSetContainerSize,
+        renderPath,
         path,
         widthLine,
         colorLine,
-        renderPath,
-        onStartDraw,
-        handleEndDraw,
-        containerStyle,
-        onChangePoints,
+        containerSize,
         fillColorCanvas,
+        handleEndDraw,
+        onStartDraw,
+        onChangePoints,
     ]);
 
     const hasMap = (

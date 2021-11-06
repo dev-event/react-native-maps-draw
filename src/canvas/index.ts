@@ -1,3 +1,3 @@
 export { default as Canvas } from './canvas';
 
-export type { ICanvasProps } from './types';
+export type { ICanvasProps, IContainerSize } from './types';
