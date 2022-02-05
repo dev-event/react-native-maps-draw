@@ -16,7 +16,6 @@ import {
     DEFAULT_FILL_BACKGROUND_CANVAS,
     DEFAULT_BACKGROUND_VIEW_CANVAS,
     DEFAULT_INDEX_INITIAL_LAT_LNG,
-    DEFAULT_CREATED_NEW_POLYGON,
     DEFAULT_ACTIVE_COLOR_LINE,
     DEFAULT_UNIT_DISTANCE,
     DEFAULT_DRAW_MODE,
@@ -38,7 +37,6 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
         onStartDraw,
         unitDistance = DEFAULT_UNIT_DISTANCE,
         onChangePoints,
-        createdPolygon = DEFAULT_CREATED_NEW_POLYGON,
         fillColorCanvas = DEFAULT_FILL_BACKGROUND_CANVAS,
         styleViewGesture,
         backgroundCanvas = DEFAULT_BACKGROUND_VIEW_CANVAS,
@@ -110,13 +108,20 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
         });
     }, []);
 
-    const hasCanvas = useMemo(() => {
-        return (
-            <View style={containerStyle} onLayout={handleSetContainerSize}>
-                <>
-                    {renderPath ? (
-                        renderPath(path)
-                    ) : (
+    return (
+        <>
+            <MapView scrollEnabled={!isDrawMode} ref={mapRef} {...rest}>
+                {children}
+            </MapView>
+            {isDrawMode ? (
+                <View style={containerStyle} onLayout={handleSetContainerSize}>
+                    <>
+                        <GestureHandler
+                            onEndTouchEvents={handleEndDraw}
+                            onStartTouchEvents={onStartDraw}
+                            onChangeTouchEvents={onChangePoints}
+                        />
+
                         <Canvas
                             path={path}
                             widthLine={widthLine}
@@ -124,40 +129,9 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
                             containerSize={containerSize}
                             fillColorCanvas={fillColorCanvas}
                         />
-                    )}
-
-                    <GestureHandler
-                        onEndTouchEvents={handleEndDraw}
-                        onStartTouchEvents={onStartDraw}
-                        onChangeTouchEvents={onChangePoints}
-                    />
-                </>
-            </View>
-        );
-    }, [
-        containerStyle,
-        handleSetContainerSize,
-        renderPath,
-        path,
-        widthLine,
-        colorLine,
-        containerSize,
-        fillColorCanvas,
-        handleEndDraw,
-        onStartDraw,
-        onChangePoints,
-    ]);
-
-    const hasMap = (
-        <MapView scrollEnabled={!isDrawMode} ref={mapRef} {...rest}>
-            {children}
-        </MapView>
-    );
-
-    return (
-        <>
-            {hasMap}
-            {!createdPolygon && hasCanvas}
+                    </>
+                </View>
+            ) : null}
         </>
     );
 });

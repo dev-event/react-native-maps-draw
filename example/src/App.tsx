@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { StyleSheet, View, TouchableOpacity, Platform, Text } from 'react-native';
-import MapView, { ILocationProps, IDrawResult, TouchPoint, Marker } from '../../src';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
+import { StyleSheet, View, TouchableOpacity, Text, Image } from 'react-native';
+import MapView, { IDrawResult, TouchPoint, Marker } from '../../src';
 import { MarkerLocation } from './assets';
 import AnimatedPolygon from './components/polygon';
 
@@ -15,145 +15,93 @@ const App = () => {
         centerLatLng: undefined,
     });
 
-    const [modePolygon, setPolygonCreated] = useState<boolean>(false);
-
     const [isActiveDraw, setDrawMode] = useState<boolean>(false);
+    const [polygon, setPolygon] = useState<IDrawResult>(initialPolygon.current);
     const [isReady, setIsReady] = useState<boolean>(false);
     const [points, setPoints] = useState<TouchPoint[]>([]);
 
-    const [polygon, setPolygon] = useState<IDrawResult>(initialPolygon.current);
-
+    /**
+     * handle map ready callback
+     */
     const handleMapReady = useCallback(() => mapRef.current && setIsReady(true), []);
 
     const handleRemovePolygon = useCallback(() => {
         setPolygon(initialPolygon.current);
-        setPolygonCreated(false);
     }, []);
 
     const handleClear = useCallback(() => {
         setPolygon(initialPolygon.current);
-        setPolygonCreated(false);
         setPoints([]);
     }, []);
 
-    const handleIsDraw = useCallback(() => {
-        if (!mapRef.current) return;
-        if (!isActiveDraw) {
-            zoomOut().then(handleClear);
-        }
-        setDrawMode((prevMode) => !prevMode);
-    }, [handleClear, isActiveDraw]);
-
+    /**
+     * Let go of your finger - draw coordinates on the map
+     */
     const handleCanvasEndDraw = useCallback((locations) => {
-        zoomCenterPolygon(locations.centerLatLng).then(() => {
-            setPolygon(locations);
-            setPolygonCreated(true);
-        });
-        setDrawMode((prevMode) => !prevMode);
+        setPolygon(locations);
+        setDrawMode(false);
     }, []);
-
-    const zoomCenterPolygon = async (center: ILocationProps) => {
-        if (!mapRef.current) return;
-        const camera = await mapRef.current.getCamera();
-        if (Platform.OS === 'ios') {
-            mapRef.current.animateCamera({
-                center: center,
-                // altitude: camera.altitude / 2,
-            });
-        }
-        if (Platform.OS === 'android') {
-            // mapRef.current.animateCamera({ center, zoom: camera.zoom + 1 });
-        }
-    };
-
-    const zoomOut = async () => {
-        if (!mapRef.current) return false;
-
-        const camera = await mapRef.current.getCamera();
-        if (Platform.OS === 'ios') {
-            mapRef.current.animateCamera({ altitude: camera.altitude * 1 });
-        }
-
-        if (Platform.OS === 'android') {
-            mapRef.current.animateCamera({ zoom: camera.zoom - 1 });
-        }
-    };
-
-    const hasMarkerClose = polygon.centerLatLng && (
-        <Marker onPress={handleRemovePolygon} coordinate={polygon.centerLatLng}>
-            <MarkerLocation />
-        </Marker>
-    );
 
     const handlePolygon = useCallback(
         (item, index) => <AnimatedPolygon key={index} coordinates={polygon.polygons} />,
         [polygon.polygons],
     );
 
-    const onChangePoints = useCallback((value) => {
-        setPoints(value);
-    }, []);
+    const isVisiblePolygons = useMemo(
+        () => isReady && polygon.polygons && polygon.polygons.length > 0,
+        [isReady, polygon.polygons],
+    );
 
-    //
-    // const hasOverlay = useMemo(() => {
-    //   if (renderOverlayPolygon === null) {
-    //     return null;
-    //   }
-    //
-    //   return renderOverlayPolygon !== undefined
-    //     ? renderOverlayPolygon(path)
-    //     : !!path && (
-    //         <OverlayPolygon
-    //           {...{
-    //             path,
-    //             fillOverlay,
-    //             widthOverlayLine,
-    //             colorWidthOverlayLine,
-    //             backgroundOverlayPolygon,
-    //           }}
-    //         />
-    //       );
-    // }, [
-    //   path,
-    //   fillOverlay,
-    //   widthOverlayLine,
-    //   renderOverlayPolygon,
-    //   colorWidthOverlayLine,
-    //   backgroundOverlayPolygon,
-    // ]);
     return (
         <View style={styles.container}>
             <MapView
                 ref={mapRef}
-                style={{ flex: 1 }}
+                style={styles.map}
                 points={points}
                 widthLine={3}
                 onEndDraw={handleCanvasEndDraw}
                 isDrawMode={isActiveDraw}
                 onMapReady={handleMapReady}
-                onStartDraw={handleClear}
-                createdPolygon={modePolygon}
-                onChangePoints={onChangePoints}
+                onChangePoints={setPoints}
                 backgroundCanvas={'rgba(0, 0, 0, 0.0)'}
             >
-                {isReady &&
-                    modePolygon &&
-                    polygon.polygons &&
-                    polygon.polygons.length > 0 && (
-                        <>
-                            {hasMarkerClose}
-                            {polygon.polygons.map(handlePolygon)}
-                        </>
-                    )}
+                {isVisiblePolygons && (
+                    <>
+                        {polygon.centerLatLng && (
+                            <Marker
+                                onPress={handleRemovePolygon}
+                                coordinate={polygon.centerLatLng}
+                            >
+                                <MarkerLocation />
+                            </Marker>
+                        )}
+                        {polygon.polygons.map(handlePolygon)}
+                    </>
+                )}
             </MapView>
 
-            <TouchableOpacity style={styles.button} onPress={handleIsDraw}>
-                {isActiveDraw ? (
-                    <Text style={styles.title}>ON</Text>
-                ) : (
-                    <Text style={styles.title}>OFF</Text>
-                )}
-            </TouchableOpacity>
+            {!isActiveDraw && (
+                <View style={styles.panel}>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => {
+                            /**
+                             * Clear coordinates before drawing
+                             */
+                            setPolygon(initialPolygon.current);
+                            setPoints([]);
+                            setDrawMode(true);
+                        }}
+                    >
+                        <Image
+                            source={require('./assets/pen.png')}
+                            resizeMode={'stretch'}
+                            style={styles.img}
+                        />
+                        <Text style={styles.title}>Draw Area</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
     );
 };
@@ -164,17 +112,29 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    button: {
+    panel: {
+        flexDirection: 'row',
         top: '10%',
-        right: '10%',
+        left: '10%',
         position: 'absolute',
-        backgroundColor: 'tomato',
-        padding: 16,
-        zIndex: 4,
-        borderRadius: 18,
     },
     title: {
-        color: '#FFFFFF',
-        fontSize: 12,
+        color: '#000000',
+        fontSize: 14,
+    },
+    button: {
+        padding: 10,
+        borderRadius: 8,
+        backgroundColor: 'white',
+        marginLeft: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    img: {
+        height: 24,
+        width: 36,
+    },
+    map: {
+        flex: 1,
     },
 });

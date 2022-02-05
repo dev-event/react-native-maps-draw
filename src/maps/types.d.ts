@@ -36,7 +36,6 @@ export interface IMapProps extends MapViewProps {
   renderPath?: (path: string) => FC | null;
   onStartDraw: () => void;
   unitDistance?: 'm' | 'km' | 'cm' | 'mm' | 'mi' | 'sm' | 'ft' | 'in' | 'yd';
-  createdPolygon: boolean;
   onChangePoints: (points: TouchPoint[]) => void;
   fillColorCanvas?: string;
   backgroundCanvas?: string;
