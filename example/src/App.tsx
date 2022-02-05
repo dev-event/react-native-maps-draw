@@ -29,10 +29,6 @@ const App = () => {
         setPolygon(initialPolygon.current);
     }, []);
 
-    const handleClear = useCallback(() => {
-        setPolygon(initialPolygon.current);
-        setPoints([]);
-    }, []);
 
     /**
      * Let go of your finger - draw coordinates on the map
