@@ -6,14 +6,14 @@ import { IAnimatedPolygon } from './types';
 const ReanimatedPolygon = Animated.createAnimatedComponent(Polygon);
 
 const AnimatedPolygon: FC<IAnimatedPolygon> = ({ coordinates }) => {
-  return (
-    <ReanimatedPolygon
-      coordinates={coordinates}
-      fillColor="rgba(100, 31, 118, 0.02)"
-      strokeColor="rgba(100, 31, 118, 0.15)"
-      strokeWidth={1}
-    />
-  );
+    return (
+        <ReanimatedPolygon
+            coordinates={coordinates}
+            fillColor="rgba(255, 171, 171, 0.01)"
+            strokeColor="rgba(255, 171, 171, 0.88)"
+            strokeWidth={1}
+        />
+    );
 };
 
 export default AnimatedPolygon;

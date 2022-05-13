@@ -8,8 +8,7 @@ import React, {
 } from 'react';
 import MapView from 'react-native-maps';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { Canvas } from '../canvas';
-import { GestureHandler } from '../gesture';
+import { DrawControl, DrawControlShape } from '../core';
 import type { IMapProps } from './types';
 import {
     DEFAULT_ACTIVE_COLOR_LINE_WIDTH,
@@ -36,6 +35,7 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
         renderPath,
         onStartDraw,
         unitDistance = DEFAULT_UNIT_DISTANCE,
+        configuration,
         onChangePoints,
         fillColorCanvas = DEFAULT_FILL_BACKGROUND_CANVAS,
         styleViewGesture,
@@ -47,6 +47,7 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
     const { width, height } = useWindowDimensions();
     const [containerSize, setContainerSize] = useState({ width, height });
 
+    const { type } = configuration;
     const containerStyle = useMemo(
         () => [
             { zIndex: 1, backgroundColor: backgroundCanvas },
@@ -113,23 +114,33 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
             <MapView scrollEnabled={!isDrawMode} ref={mapRef} {...rest}>
                 {children}
             </MapView>
+
             {isDrawMode ? (
                 <View style={containerStyle} onLayout={handleSetContainerSize}>
-                    <>
-                        <GestureHandler
-                            onEndTouchEvents={handleEndDraw}
-                            onStartTouchEvents={onStartDraw}
-                            onChangeTouchEvents={onChangePoints}
-                        />
-
-                        <Canvas
+                    {type === 'draw' && (
+                        <DrawControl
                             path={path}
                             widthLine={widthLine}
                             colorLine={colorLine}
                             containerSize={containerSize}
                             fillColorCanvas={fillColorCanvas}
+                            onEndTouchEvents={handleEndDraw}
+                            onStartTouchEvents={onStartDraw}
+                            onChangeTouchEvents={onChangePoints}
                         />
-                    </>
+                    )}
+
+                    {/* {type === 'DrawWithPoint' && (
+                        <DrawControlShape
+                            path={path}
+                            widthLine={widthLine}
+                            colorLine={colorLine}
+                            containerSize={containerSize}
+                            fillColorCanvas={fillColorCanvas}
+                            onEndTouchEvents={handleEndDraw}
+                            onStartTouchEvents={onStartDraw}
+                        />
+                    )} */}
                 </View>
             ) : null}
         </>

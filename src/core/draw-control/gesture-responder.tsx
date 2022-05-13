@@ -1,9 +1,9 @@
 import React, { FC, useRef } from 'react';
 import { PanResponder, View } from 'react-native';
-import type { TouchPoint } from '../types';
-import type { IGestureProps } from './types';
+import type { TouchPoint } from '../../types';
+import type { IGestureControlProps } from '../types';
 
-const GestureHandler: FC<IGestureProps> = ({
+const GestureHandler: FC<IGestureControlProps> = ({
     onEndTouchEvents,
     onStartTouchEvents,
     onChangeTouchEvents,
@@ -35,7 +35,6 @@ const GestureHandler: FC<IGestureProps> = ({
         },
     });
 
-    // @ts-ignore
     return (
         <View
             style={{

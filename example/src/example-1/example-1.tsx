@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, Image } from 'react-native';
-import MapView, { IDrawResult, TouchPoint, Marker } from '../../src';
-import { MarkerLocation } from './assets';
-import AnimatedPolygon from './components/polygon';
+import MapView, { IDrawResult, TouchPoint, Marker } from '../../../src';
+import { MarkerLocation } from '../assets';
+import AnimatedPolygon from '../components/polygon';
 
-const App = () => {
+const Example1 = () => {
     const mapRef = useRef<MapView>(null);
 
     const initialPolygon = useRef({
@@ -29,13 +29,12 @@ const App = () => {
         setPolygon(initialPolygon.current);
     }, []);
 
-
     /**
      * Let go of your finger - draw coordinates on the map
      */
     const handleCanvasEndDraw = useCallback((locations) => {
         setPolygon(locations);
-        setDrawMode(false);
+        setDrawMode(false)
     }, []);
 
     const handlePolygon = useCallback(
@@ -60,6 +59,9 @@ const App = () => {
                 onMapReady={handleMapReady}
                 onChangePoints={setPoints}
                 backgroundCanvas={'rgba(0, 0, 0, 0.0)'}
+                configuration={{
+                    type: 'draw',
+                }}
             >
                 {isVisiblePolygons && (
                     <>
@@ -76,33 +78,29 @@ const App = () => {
                 )}
             </MapView>
 
-            {!isActiveDraw && (
-                <View style={styles.panel}>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => {
-                            /**
-                             * Clear coordinates before drawing
-                             */
-                            setPolygon(initialPolygon.current);
-                            setPoints([]);
-                            setDrawMode(true);
-                        }}
-                    >
-                        <Image
-                            source={require('./assets/pen.png')}
-                            resizeMode={'stretch'}
-                            style={styles.img}
-                        />
-                        <Text style={styles.title}>Draw Area</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
+            <View style={styles.panel}>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => {
+                        setPolygon(initialPolygon.current);
+                        setPoints([]);
+                        setDrawMode(true);
+                    }}
+                >
+                    <Image
+                        source={require('../assets/pen.png')}
+                        resizeMode={'stretch'}
+                        style={styles.img}
+                    />
+                    <Text style={styles.title}>Draw Area</Text>
+                </TouchableOpacity>
+            </View>
+
         </View>
     );
 };
 
-export default App;
+export default Example1;
 
 const styles = StyleSheet.create({
     container: {
