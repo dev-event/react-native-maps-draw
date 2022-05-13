@@ -8,15 +8,13 @@ import React, {
 } from 'react';
 import MapView from 'react-native-maps';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { Canvas } from '../canvas';
-import { GestureHandler } from '../gesture';
+import { DrawControl, DrawControlShape } from '../core';
 import type { IMapProps } from './types';
 import {
     DEFAULT_ACTIVE_COLOR_LINE_WIDTH,
     DEFAULT_FILL_BACKGROUND_CANVAS,
     DEFAULT_BACKGROUND_VIEW_CANVAS,
     DEFAULT_INDEX_INITIAL_LAT_LNG,
-    DEFAULT_CREATED_NEW_POLYGON,
     DEFAULT_ACTIVE_COLOR_LINE,
     DEFAULT_UNIT_DISTANCE,
     DEFAULT_DRAW_MODE,
@@ -37,8 +35,8 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
         renderPath,
         onStartDraw,
         unitDistance = DEFAULT_UNIT_DISTANCE,
+        configuration,
         onChangePoints,
-        createdPolygon = DEFAULT_CREATED_NEW_POLYGON,
         fillColorCanvas = DEFAULT_FILL_BACKGROUND_CANVAS,
         styleViewGesture,
         backgroundCanvas = DEFAULT_BACKGROUND_VIEW_CANVAS,
@@ -49,6 +47,7 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
     const { width, height } = useWindowDimensions();
     const [containerSize, setContainerSize] = useState({ width, height });
 
+    const { type } = configuration;
     const containerStyle = useMemo(
         () => [
             { zIndex: 1, backgroundColor: backgroundCanvas },
@@ -110,54 +109,40 @@ export default forwardRef<MapView, IMapProps>((props, ref) => {
         });
     }, []);
 
-    const hasCanvas = useMemo(() => {
-        return (
-            <View style={containerStyle} onLayout={handleSetContainerSize}>
-                <>
-                    {renderPath ? (
-                        renderPath(path)
-                    ) : (
-                        <Canvas
+    return (
+        <>
+            <MapView scrollEnabled={!isDrawMode} ref={mapRef} {...rest}>
+                {children}
+            </MapView>
+
+            {isDrawMode ? (
+                <View style={containerStyle} onLayout={handleSetContainerSize}>
+                    {type === 'draw' && (
+                        <DrawControl
                             path={path}
                             widthLine={widthLine}
                             colorLine={colorLine}
                             containerSize={containerSize}
                             fillColorCanvas={fillColorCanvas}
+                            onEndTouchEvents={handleEndDraw}
+                            onStartTouchEvents={onStartDraw}
+                            onChangeTouchEvents={onChangePoints}
                         />
                     )}
 
-                    <GestureHandler
-                        onEndTouchEvents={handleEndDraw}
-                        onStartTouchEvents={onStartDraw}
-                        onChangeTouchEvents={onChangePoints}
-                    />
-                </>
-            </View>
-        );
-    }, [
-        containerStyle,
-        handleSetContainerSize,
-        renderPath,
-        path,
-        widthLine,
-        colorLine,
-        containerSize,
-        fillColorCanvas,
-        handleEndDraw,
-        onStartDraw,
-        onChangePoints,
-    ]);
-
-    const hasMap = (
-        <MapView scrollEnabled={!isDrawMode} ref={mapRef} {...rest}>
-            {children}
-        </MapView>
-    );
-
-    return (
-        <>
-            {hasMap}
-            {!createdPolygon && hasCanvas}
+                    {/* {type === 'DrawWithPoint' && (
+                        <DrawControlShape
+                            path={path}
+                            widthLine={widthLine}
+                            colorLine={colorLine}
+                            containerSize={containerSize}
+                            fillColorCanvas={fillColorCanvas}
+                            onEndTouchEvents={handleEndDraw}
+                            onStartTouchEvents={onStartDraw}
+                        />
+                    )} */}
+                </View>
+            ) : null}
         </>
     );
 });

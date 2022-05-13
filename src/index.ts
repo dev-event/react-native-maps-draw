@@ -9,7 +9,7 @@ export type {
     IGestureCoordinates,
     IDrawResult,
 } from './maps';
-export type { IGestureProps } from './gesture';
+export type { IGestureProps } from './core/draw-control';
 export type { ICanvasProps, IContainerSize } from './canvas';
 export type { IPolygonProps } from './polygon';
 export type { TouchPoint } from './types';
