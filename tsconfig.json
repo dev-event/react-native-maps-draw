@@ -2,9 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@dev-event/react-native-maps-draw": [
-        "./src/index"
-      ]
+      "react-native-maps-draw": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -12,25 +10,19 @@
     "importsNotUsedAsValues": "error",
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
-    "lib": [
-      "esnext"
-    ],
-    "allowJs": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "outDir": "dist",
+    "lib": ["esnext"],
     "module": "esnext",
     "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
     "noStrictGenericChecks": false,
+    "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": false,
-    "noImplicitAny": false,
+    "strict": true,
     "target": "esnext"
-  },
+  }
 }
