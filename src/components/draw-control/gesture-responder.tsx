@@ -1,6 +1,7 @@
 import React, { FC, useRef } from 'react';
 import { PanResponder, View } from 'react-native';
 import type { TGestureControl, TTouchPoint } from '../../types';
+import { styles } from './gesture-responder.style';
 
 const GestureHandler: FC<TGestureControl> = ({
   onEndTouchEvents,
@@ -34,20 +35,7 @@ const GestureHandler: FC<TGestureControl> = ({
     },
   });
 
-  return (
-    <View
-      style={{
-        backgroundColor: 'transparent',
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 1,
-      }}
-      {...panResponder.panHandlers}
-    />
-  );
+  return <View style={styles.gestureResponder} {...panResponder.panHandlers} />;
 };
 
 export default GestureHandler;
